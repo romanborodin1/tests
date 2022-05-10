@@ -1,0 +1,47 @@
+---
+- name: Main playbook
+  hosts: deploy_hosts 
+  gather_facts: False
+  become: true
+  vars:
+    remove_nginx: "{{ remove_nginx_package | bool }}"
+  tasks:
+    - name: Add Nginx repository
+      yum_repository:
+        name: nginx
+        description: nginx repo
+        baseurl: https://nginx.org/packages/centos/$releasever/$basearch/
+        gpgcheck: no
+      when: not remove_nginx
+
+    - name: Inastall Nginx
+      yum:
+        name:
+          - nginx
+        state: present
+        enablerepo: nginx
+      when: not remove_nginx
+
+    - name: Remove Nginx
+      yum:
+        name:
+          - nginx
+        state: absent
+      when: remove_nginx
+
+    - name: Remove repository (and clean up left-over metadata)
+      yum_repository:
+        name:
+          - nginx
+        state: absent
+      notify: yum-clean-metadata
+      when: remove_nginx
+ 
+  handlers:
+  # Handler showing how to clean yum metadata cache
+    - name: yum-clean-metadata
+      command: yum clean metadata
+      args:
+        warn: no
+
+

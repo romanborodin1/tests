@@ -1,7 +1,8 @@
 ---
 - name: Main playbook
-  hosts: deploy_hosts 
-  gather_facts: False
+  hosts: localhost 
+  gather_facts: no
+  connection: local
   become: true
   vars:
     remove_nginx: "{{ remove_nginx_package | bool }}"

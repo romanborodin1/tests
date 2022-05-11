@@ -2,14 +2,14 @@ pipeline {
     agent any
     parameters { 
         booleanParam(name: 'REMOVE_NGINX', defaultValue: false, description: 'Do you want to remove Nginx?')
-        string(name: 'GIT_BRANCH', defaultValue: 'develop', description: '')
+        string(name: 'BRANCH', defaultValue: 'develop', description: '')
     }
     stages {
         stage('Clone Git-repo') {
             steps {
                 script {
                     cleanWs()
-                    sh "git clone -b $GIT_BRANCH https://github.com/romchegue/tests.git"
+                    sh "git clone -b $BRANCH https://github.com/romchegue/tests.git"
                     sh "ls -l tests"
                 }
             }

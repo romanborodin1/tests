@@ -3,10 +3,23 @@
   hosts: localhost 
   gather_facts: no
   connection: local
-  become: true
+  become: yes
   vars:
     remove_nginx: "{{ remove_nginx_package | bool }}"
   tasks:
+    - name: Environment variables
+      debug:
+        msg: env
+      become: no
+  
+    - name: Show environment variables
+      shell: env
+      become: no
+
+    - name: Show current user
+      shell: id
+      become: no
+
     - name: Add Nginx repository
       yum_repository:
         name: nginx

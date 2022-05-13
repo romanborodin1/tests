@@ -1,0 +1,23 @@
+# File: /etc/nginx/conf.d/proxy.conf
+server {
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+
+    listen       80 default_server;
+    server_name  {{ server_domain_name }};
+
+    location /jenkins/ {
+        return 301 http://{{ jenkins_host }}:{{ jenkins_port }}/;
+    }
+
+    location /adcm/ {
+        return 301 http://{{ adcm_host }}:{{ adcm_port }}/;
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
+
+

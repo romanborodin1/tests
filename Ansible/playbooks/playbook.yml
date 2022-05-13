@@ -1,68 +1,70 @@
 ---
 - name: Main playbook
-  hosts: deploy_hosts 
+  hosts: deploy_hosts
+  become: yes
   vars:
-    remove_nginx: "{{ remove_nginx_package | bool }}"
+    remove_nginx: '{{ remove_nginx_package | bool }}'
   tasks:
     - include_vars: 
-        file: "{{ workspace }}/tests/Ansible/variables/all.yml" 
+        file: '{{ workspace }}/tests/Ansible/variables/all.yml'
 
     - name: Environment variables
       debug:
         var: vars
+      become: no
 
-    - name: Show current user
-      shell: id
-
-    - name: Show become user
-      shell: id
-      become: yes
-
-    - name: Host's FQDN
+    - name: Debug variable 'remove_nginx'
       debug:
-        msg: "This is host's FQDN: {{ vars.ansible_fqdn }}"
-      
+        msg: "remove_nginx = {{ remove_nginx }}"
+      become: no
 
-#    - name: Add Nginx repository
-#      yum_repository:
-#        name: nginx
-#        description: nginx repo
-#        baseurl: https://nginx.org/packages/centos/$releasever/$basearch/
-#        gpgcheck: no
-#      when: not remove_nginx
-#      become: yes
+    - name: Install and setup Nginx
+      block:
+        - name: Add Nginx repository
+          yum_repository:
+            name: nginx
+            description: nginx repo
+            baseurl: https://nginx.org/packages/centos/$releasever/$basearch/
+            gpgcheck: no
 
-#    - name: Inastall Nginx
-#      yum:
-#        name:
-#          - nginx
-#        state: present
-#        enablerepo: nginx
-#      when: not remove_nginx
-#      become: yes
+        - name: Install Nginx
+          yum:
+            name: nginx
+            state: present
+            enablerepo: nginx
+          notify: restart-nginx
 
-#    - name: Remove Nginx
-#      yum:
-#        name:
-#          - nginx
-#        state: absent
-#      when: remove_nginx
-#      become: yes
+        - name: Prepare Nginx config
+          template:
+            src: '{{ workspace }}/tests/Ansible/templates/proxy.conf.j2'
+            dest: /etc/nginx/conf.d/proxy.conf
+            owner: 'root'
+            group: 'root'
+            mode: '0644'
+          notify: restart-nginx
+      when: not remove_nginx
 
-#    - name: Remove repository (and clean up left-over metadata)
-#      yum_repository:
-#        name:
-#          - nginx
-#        state: absent
-#      notify: yum-clean-metadata
-#      when: remove_nginx
-#      become: yes
- 
-#  handlers:
-#  # Handler showing how to clean yum metadata cache
-#    - name: yum-clean-metadata
-#      command: yum clean metadata
-#      args:
-#        warn: no
-#      become: yes
+    - name: Remove Nginx and Yum repo
+      block:
+        - name: Remove Nginx
+          yum:
+            name: nginx
+            state: absent
 
+        - name: Remove repository (and clean up left-over metadata)
+          yum_repository:
+            name: nginx
+            state: absent
+          notify: yum-clean-metadata
+      when: remove_nginx
+
+  handlers:
+    - name: restart-nginx
+      systemd:
+        name: nginx
+        state: restarted
+        enabled: yes
+
+    # Handler showing how to clean yum metadata cache
+    - name: yum-clean-metadata
+      command: yum clean metadata

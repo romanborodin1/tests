@@ -2,6 +2,7 @@ pipeline {
     agent any
     options {
         ansiColor('xterm')
+        buildDiscarder(logRotator(numToKeepStr: '7', daysToKeepStr: '10', artifactNumToKeepStr: '3', artifactDaysToKeepStr: '7'))
     }
     parameters { 
         booleanParam(name: 'REMOVE_NGINX', defaultValue: false, description: 'Do you want to remove Nginx?')

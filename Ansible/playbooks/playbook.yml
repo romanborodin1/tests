@@ -1,7 +1,6 @@
 ---
 - name: Main playbook
   hosts: deploy_hosts 
-#  gather_facts: no
   vars:
     remove_nginx: "{{ remove_nginx_package | bool }}"
   tasks:
@@ -15,6 +14,11 @@
     - name: Show current user 2
       shell: id
       become: yes
+
+    - name: Host's FQDN
+      debug:
+        msg: "This is host's FQDN: {{ vars.ansible_fqdn }}"
+      
 
 #    - name: Add Nginx repository
 #      yum_repository:

@@ -28,7 +28,8 @@ pipeline {
                             ansiblePlaybook(
                                 inventory: 'Ansible/inventories/test_hosts',
                                 playbook: 'Ansible/playbooks/playbook.yml',
-                                extras: '-e "ansible_user=$USERNAME' +
+                                extras: '-e "workspace=${WORKSPACE}' +
+                                        ' ansible_user=$USERNAME' +
                                         ' ansible_password=$PASSWORD' +
                                         ' ansible_become_password=$PASSWORD' +
                                         ' remove_nginx_package=$REMOVE_NGINX" -vvv',

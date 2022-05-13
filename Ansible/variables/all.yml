@@ -1,0 +1,6 @@
+---
+server_domain_name:                                      "{{ vars.ansible_fqdn }}"
+jenkins_host:                                            "{{ vars.ansible_fqdn }}"
+jenkins_port:                                            "8080"
+adcm_host:                                               "{{ vars.ansible_fqdn }}"
+adcm_port:                                               "8000"

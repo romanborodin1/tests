@@ -4,6 +4,9 @@
   vars:
     remove_nginx: "{{ remove_nginx_package | bool }}"
   tasks:
+    - include_vars: 
+        file: "{{ workspace }}/tests/Ansible/variables/all.yml" 
+
     - name: Environment variables
       debug:
         var: vars
@@ -11,7 +14,7 @@
     - name: Show current user
       shell: id
 
-    - name: Show current user 2
+    - name: Show become user
       shell: id
       become: yes
 

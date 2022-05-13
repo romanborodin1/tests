@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    options {
+        ansiColor('xterm')
+    }
     parameters { 
         booleanParam(name: 'REMOVE_NGINX', defaultValue: false, description: 'Do you want to remove Nginx?')
         string(name: 'BRANCH', defaultValue: 'develop', description: '')

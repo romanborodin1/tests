@@ -4,14 +4,14 @@
   become: yes
   vars:
     remove_nginx: '{{ remove_nginx_package | bool }}'
+  vars_files:
+    - '{{ workspace }}/Ansible/variables/all.yml'
+    - '{{ workspace }}/Ansible/inventories/secret.yml'
   tasks:
-    - include_vars: 
-        file: '{{ workspace }}/tests/Ansible/variables/all.yml'
-
-    - name: Environment variables
-      debug:
-        var: vars
-      become: no
+#    - name: Environment variables
+#      debug:
+#        var: vars
+#      become: no
 
     - name: Debug variable 'remove_nginx'
       debug:
@@ -36,7 +36,7 @@
 
         - name: Prepare Nginx config
           template:
-            src: '{{ workspace }}/tests/Ansible/templates/proxy.conf.j2'
+            src: '{{ workspace }}/Ansible/templates/proxy.conf.j2'
             dest: /etc/nginx/conf.d/proxy.conf
             owner: 'root'
             group: 'root'

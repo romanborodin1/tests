@@ -6,12 +6,17 @@ server {
     listen       80 default_server;
     server_name  {{ server_domain_name }};
 
-    location /jenkins/ {
-        return 301 http://{{ jenkins_host }}:{{ jenkins_port }}/;
-    }
-
     location /adcm/ {
         return 301 http://{{ adcm_host }}:{{ adcm_port }}/;
+    }
+
+    location ~* ^/jenkins/ {
+        rewrite ^/jenkins/(.*) /$1 break;
+        proxy_pass http://{{ jenkins_host }}:{{ jenkins_port }};
+    }
+
+    location / {
+        proxy_pass http://{{ jenkins_host }}:{{ jenkins_port }};    # Jenkins
     }
 
     error_page   500 502 503 504  /50x.html;
@@ -20,4 +25,30 @@ server {
     }
 }
 
+# File: /etc/nginx/conf.d/proxy.conf
+server {
+    root   /usr/share/nginx/html;
+    index  index.html index.htm;
+
+    listen       80 default_server;
+    server_name  rborodin2.phoenixit.ru;
+
+    location /adcm/ {
+        return 301 http://rborodin2.phoenixit.ru:8000/;
+    }
+
+    location ~* ^/jenkins/ {
+        rewrite ^/jenkins/(.*) /$1 break;
+        proxy_pass http://rborodin2.phoenixit.ru:8080;
+    }
+
+    location / {
+        proxy_pass http://rborodin2.phoenixit.ru:8080;    # Jenkins
+    }
+
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+}
 
